@@ -1,124 +1,159 @@
-const balance = document.querySelector(".balance");
-const money_plus = document.querySelector("#money-plus");
-const money_minus = document.querySelector("#money-minus");
-const list = document.querySelector(".list");
-const form = document.querySelector("form");
-const text = document.querySelector(".text-input");
-const amount = document.querySelector(".entry-amount");
-const btn = document.querySelector(".btn")
+//1 Declare variables
+const button = document.querySelector(".btn")
+const amount = document.querySelector(".amount")
+const text_input = document.querySelector(".text-input")
+const entry_amount = document.querySelector(".entry-amount")
+const money_plus = document.querySelector("#money-plus")
+const money_minus = document.querySelector("#money-minus")
+const balance = document.querySelector("#balance")
+const list = document.querySelector(".list")
+const form =document.querySelector("form")
 
-// const dummyTransactions = [
-//     {id:1, text:'Flower', amount: -20  
-//     },
-//     {id:2, text:'Salary', amount: 300,  
-//     },{id:3, text:'Book', amount: -10,  
-// },{id:4, text:'Camera', amount: 150,  
+
+
+
+
+// function addTransaction(e){
+//     console.log(transactions)
 // }
+// addTransaction()
+
+
+//2 Hard code transactions
+// const dummyTransactions = [
+//     {id:1,entry: "Cashews", amount:45}, 
+//     {id:2,entry: "Pawpaw", amount:5},
+//     {id:3,entry: "Mango", amount:19}, 
+//     {id:4,entry: "Beans", amount:-109}
 // ];
 
+
+
+
+//9 create local storage transaction variable
 const localStorageTransactions = JSON.parse(
     localStorage.getItem('transactions')
-);
-
-// let transactions = dummyTransactions;
+  );
+    
 let transactions =
     localStorage.getItem('transactions') !== null ? localStorageTransactions : [];
-//Add transaction
-function addTransaction(e) {
+
+
+//3)Declare dummy transactions
+// const transactions = dummyTransactions
+
+//7) Add transaction
+function addTransaction(e){
     e.preventDefault();
-
-    if (text.value.trim() === '' || amount.value.trim() === '') {
-        alert('Please add a text and amount');
-    } else {
+    
+    if(text_input.value.trim() === '' || entry_amount.value.trim() === '')
+    {
+        alert("Please add a valid entry and amount");
+    }
+    else{
         const transaction = {
-            id: generateID(),
-            text: text.value,
-            amount: +amount.value
+            id : generateID(),
+            entry : text_input.value,
+            amount: +entry_amount.value
         };
-        transactions.push(transaction);
-        addTransactionDOM(transaction);
+        //Push the new transaction into the existing transactions array
+        transactions.push(transaction)
+        //Run add transactiondom
+        addTransactionToDom(transaction);
 
-        //uPDATE VALUES
-        updateValues();
-
+        //Update the value
+        updateBalance();
         updateLocalStorage();
-        //cLEAR TRANASCTIONS
-        text.value = '';
-        amount.value = ''
+
+        text_input.value = '';
+        entry_amount.value = '';
+        
     }
 }
 
-//Generate random ID
-
+//6)Generate random ID
 function generateID() {
     return Math.floor(Math.random() * 100000000);
-}
-//Add transactions to dom list
-function addTransactionDOM(transaction) {
-    //Get sign
-    console.log("word")
-    const sign = transaction.amount < 0 ? '-' : ' + ';
-    const item = document.createElement('li');
+  }
+  
+
+//4)Add transactions to dom list
+function addTransactionToDom(transaction){
+    //Get the sign
+    const sign = transaction.amount < 0 ? "-" : "+";
+    const li = document.createElement("li")
     //Add class based on value
-    item.classList.add(transaction.amount < 0 ? 'minus' : 'plus');
+    li.classList.add(transaction.amount < 0 ? "minus" : "plus");
 
-    item.innerHTML = `
-    ${transaction.text} <span>${sign}${Math.abs(transaction.amount)}
-    </span><button class = "delete-btn" onclick="removeTransaction(${transaction.id})">x</button>`;
+    li.innerHTML = ` ${transaction.entry}
+    <span> ${sign}${Math.abs(transaction.amount)}</span><button class="delete-btn" onclick="removeTransaction(${
+        transaction.id
+      })">x</button>`;
+    list.appendChild(li)
+            
+        };
 
-    list.appendChild(item);
-    console.log("word")
-}
 
 
-//Update the balance income and expense
 
-function updateValues() {
-    const amounts = transactions.map(transaction => transaction.amount);
-    const total = amounts.reduce((acc, item) => (acc += item), 0).toFixed(2);
-    console.log(total);
+
+
+
+
+
+
+
+//5) Update the balance income and expense
+function updateBalance(){
+    const amounts = transactions
+        .map(transaction => transaction.amount)
+    const total = amounts.reduce((accumulator, item) => (accumulator += item), 0).toFixed(2);
 
     const income = amounts
         .filter(item => item > 0)
-        .reduce((acc, item) => (acc += item), 0)
+        .reduce((accumulator, item) => (accumulator += item), 0)
         .toFixed(2);
-
-    console.log(income);
 
     const expense = (amounts
         .filter(item => item < 0)
-        .reduce((acc, item) => (acc += item), 0) *
-        -1).toFixed(2);
-
-    console.log(expense)
-
-    balance.innerText = `£${total}`;
-    money_plus.innerText = `£${income}`;
-    money_minus.innerText = `£${expense}`;
+        .reduce((accumulator, item) => (accumulator += item), 0) * -1).toFixed(2);
+    
+    money_plus.innerText= `£${income}`
+    money_minus.innerText = `£${expense}`
+    balance.innerText = `£${total}`
 
 }
 
-//remove transaction by id
-function removeTransaction(id) {
+//Update values
+
+//8)remove transaction by id
+function removeTransaction(id){
     transactions = transactions.filter(transaction => transaction.id !== id);
+
     updateLocalStorage();
     init();
+
 }
 
-//Create a function to update local storage transactions
+//10)Create a function to update local storage transactions
 function updateLocalStorage() {
     localStorage.setItem('transactions', JSON.stringify(transactions));
-}
-//init app
+  }
+
+//11)init app
 
 function init() {
-    console.log("word")
     list.innerHTML = '';
-    transactions.forEach(addTransactionDOM);
-    console.log("word")
-    updateValues()
-}
+  
+    transactions.forEach(addTransactionToDom);
+   updateBalance()
+  }
+  
 
+
+
+// 12)Run app
 init();
 
-form.addEventListener('submit', addTransaction);
+//13)Add event listener
+form.addEventListener("submit", addTransaction)
